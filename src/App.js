@@ -1,26 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Route, Switch } from 'react-router-dom'
+import './index.css'
+import Home from './components/Home'
+import About from './components/About'
+import API from './components/API'
+import Error from './components/Error'
+import React, { createContext, useReducer } from "react";
+import Navbar from './components/Navbar'
+import { createGlobalStyle, ThemeProvider } from "styled-components";
+import { initialState, reducer } from "./reducer";
 
-function App() {
+export const AppContext = createContext();
+
+export default function App(props) {
+
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { currentTheme } = state;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={currentTheme}>
+      <AppContext.Provider value={{ ...state, dispatch }}>
+        <GlobalStyles />
+        <Navbar />
+        <Switch>
+          <Route path='/' component={Home} exact></Route>
+          <Route path='/home' component={Home}></Route>
+          <Route path='/about' component={About}></Route>
+          <Route path='/api' component={API}></Route>
+          <Route component={Error}></Route>
+        </Switch>
+      </AppContext.Provider>
+    </ThemeProvider>
   );
 }
 
-export default App;
+const GlobalStyles = createGlobalStyle`
+  body {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    background-color: ${props => props.theme.backgroundColor};
+    color: ${props => props.theme.textColor};
+    font-family: sans-serif;
+  }
+`;
